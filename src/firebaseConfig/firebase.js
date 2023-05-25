@@ -44,3 +44,6 @@ export function uploadFile(file) {
     console.log('url de la img', snapshot);
   });
 }
+
+// para almacenar datos en firebase, usa un producto llamado firestore
+//* *1) usa el Metodo getFirestore  */

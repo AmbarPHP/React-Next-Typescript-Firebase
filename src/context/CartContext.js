@@ -7,7 +7,9 @@ export const useCartContext = () => useContext(CartContext);
 
 const CartContextProvider = ({ children }) => {
   const [cartList, setCartList] = useState([]);
+
   const addItem = (item) => {
+ 
     const index = cartList.findIndex((index) => index.id === item.id);
     if (index > -1) {
       const oldItem = cartList[index].quantity;
@@ -21,6 +23,7 @@ const CartContextProvider = ({ children }) => {
   };
 
   const removeItem = (itemId) => {
+   
     setCartList(cartList.filter((item) => item.id !== itemId));
   };
 
@@ -47,3 +50,9 @@ const CartContextProvider = ({ children }) => {
 };
 
 export default CartContextProvider;
+
+/**
+ * Este Provider es para ver lo que podemos compartir desde aqui
+ * todo lo que caiga dentro de children tendra acceso a las variables
+ * muchas funciones disponibles, desde este provider
+ */

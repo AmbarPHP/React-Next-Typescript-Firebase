@@ -129,3 +129,9 @@ const AddProducts = () => {
 };
 
 export default AddProducts;
+
+/** Creando colecciones en firebase  
+ * vamos a crear una base de datos NoSQL, en la nube, al fin de almacenar y sincronizar datos 
+ * del lado de cliente y servidor
+ * 1) para crear una coleccion en Cloud Firestore
+*/
