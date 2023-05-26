@@ -6,12 +6,12 @@ import { getStorage, ref, uploadBytes } from 'firebase/storage';
 import { v4 } from 'uuid';
 // json con parametros de firebase
 const firebaseConfig = {
-  apiKey: 'AIzaSyAOFprTCA7Hjg6bxXVpmZ9eSYUyQhSEt8M',
-  authDomain: 'pizzeria-45208.firebaseapp.com',
-  projectId: 'pizzeria-45208',
-  storageBucket: 'pizzeria-45208.appspot.com',
-  messagingSenderId: '109575160762',
-  appId: '1:109575160762:web:4c1e69fca3aa0a7dc0d383',
+  apiKey: "AIzaSyBaxweI7UxavRVxg8YCA9bT1Y3r3FXOZAI",
+  authDomain: "storagestore-8eb19.firebaseapp.com",
+  projectId: "storagestore-8eb19",
+  storageBucket: "storagestore-8eb19.appspot.com",
+  messagingSenderId: "981213602965",
+  appId: "1:981213602965:web:91c4f5898a1f29d148279c"
 };
 
 // pasamos el json como parametro
