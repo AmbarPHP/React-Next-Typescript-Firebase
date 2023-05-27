@@ -1,5 +1,9 @@
 import { useState } from 'react';
-import { Grid, Typography, Button, Modal, Box, TextField } from '@mui/material';
+import {
+  Grid, Typography, Button, Modal, Box, TextField, MenuItem,
+  InputLabel,
+  Select
+} from '@mui/material';
 import swal from 'sweetalert';
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig/firebase';
@@ -12,17 +16,18 @@ const style = {
   left: '50%',
   transform: 'translate(-50%, -50%)',
   maxWidth: 700,
-  backgroundColor: 'black',
+  backgroundColor: 'white',
   padding: 4,
 };
 
 const AddUsers = () => {
   // campos firebase
   const [name, setName] = useState('');
-  const [company, setCompany] = useState('');
-  const [role, setRole] = useState('');
-  const [verified, setVerified] = useState('');
-  const [status, setStatus] = useState('');
+  const [details, setDetails] = useState('');
+  const [grade, setGrade] = useState('');
+  const [group, setGroup] = useState('');
+  const [phone, setPhone] = useState('');
+  const [status, setStatus] = useState('true');
 
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
@@ -32,7 +37,7 @@ const AddUsers = () => {
 
   const addUsers = (e) => {
     e.preventDefault();
-    addDoc(userscollection, { name, company, role, verified, status })
+    addDoc(userscollection, { name, group, grade, phone, details, status })
       .then(swal('Good job!', 'Users has been added !', 'success'))
       .catch((err) => swal(err.message));
     setOpen(false);
@@ -69,8 +74,8 @@ const AddUsers = () => {
               X
             </Button>
           </Grid>
-          <Typography style={{ textAlign: 'center', color: '#fff' }} id="modal-modal-title" variant="h3" component="h2">
-            Add Users
+          <Typography style={{ textAlign: 'center', color: '#aaa' }} id="modal-modal-title" variant="h3" component="h2">
+            Agregar usuario
           </Typography>
           <form
             onSubmit={addUsers}
@@ -85,7 +90,7 @@ const AddUsers = () => {
             <TextField
               style={{ width: '80%', margin: '15px', backgroundColor: '#fff' }}
               id="outlined-basic"
-              label="Name"
+              label="Nombre"
               variant="outlined"
               required
               onChange={(e) => setName(e.target.value)}
@@ -95,38 +100,52 @@ const AddUsers = () => {
               type="text"
               style={{ width: '80%', margin: '15px', backgroundColor: '#fff' }}
               id="outlined-basic"
-              label="Company"
+              label="Detalles"
               variant="outlined"
               required
-              onChange={(e) => setCompany(e.target.value)}
+              onChange={(e) => setDetails(e.target.value)}
             />
+            <InputLabel id="demo-simple-select-label">Grado</InputLabel>
+            <Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={grade}
+              label="Grado"
+              style={{ width: '80%', margin: '0.9375rem', backgroundColor: '#fff' }}
+              onChange={(e) => setGrade(e.target.value)}
+            >
+
+              <MenuItem value={1}>Primero</MenuItem>
+              <MenuItem value={2}>Segundo</MenuItem>
+              <MenuItem value={3}>Tercero</MenuItem>
+              <MenuItem value={4}>Cuarto</MenuItem>
+              <MenuItem value={5}>Quinto</MenuItem>
+              <MenuItem value={6}>Sexto</MenuItem>
+            </Select>
+            <InputLabel id="demo-simple-select-label">Grupo</InputLabel>
+            <Select
+              labelId="demo-simple-select-group"
+              id="demo-simple-select-group"
+              value={group}
+              label="Grupo"
+              style={{ width: '80%', margin: '0.9375rem', backgroundColor: '#fff' }}
+              onChange={(e) => setGroup(e.target.value)}
+            >
+
+              <MenuItem value={"A"}>A</MenuItem>
+              <MenuItem value={"B"}>B</MenuItem>
+              <MenuItem value={"C"}>C</MenuItem>
+            </Select>
             <TextField
               type="text"
               style={{ width: '80%', margin: '15px', backgroundColor: '#fff' }}
               id="outlined-basic"
-              label="Role"
+              label="Phone"
               variant="outlined"
               required
-              onChange={(e) => setRole(e.target.value)}
+              onChange={(e) => setPhone(e.target.value)}
             />
-            <TextField
-              type="text"
-              style={{ width: '80%', margin: '15px', backgroundColor: '#fff' }}
-              id="outlined-basic"
-              label="Verified"
-              variant="outlined"
-              required
-              onChange={(e) => setVerified(e.target.value)}
-            />
-            <TextField
-              type="text"
-              style={{ width: '80%', margin: '15px', backgroundColor: '#fff' }}
-              id="outlined-basic"
-              label="Status"
-              variant="outlined"
-              required
-              onChange={(e) => setStatus(e.target.value)}
-            />
+
 
             <input
               style={{

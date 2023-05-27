@@ -12,13 +12,18 @@ import {
   Grid,
   Typography,
   TextField,
+  MenuItem,
+  InputLabel,
+  Select,
+  RadioGroup,
+  FormControlLabel, Radio,
   Modal,
   Box,
   TablePagination,
   Checkbox,
 } from '@mui/material';
 import swal from 'sweetalert';
-import { collection, doc, onSnapshot, deleteDoc, updateDoc } from 'firebase/firestore';
+import { collection, doc, getDoc, onSnapshot, deleteDoc, updateDoc } from 'firebase/firestore';
 import { UserListToolbar } from '../sections/@dashboard/user';
 import AddUsers from '../layouts/dashboard/AddUsers';
 import { db } from '../firebaseConfig/firebase';
@@ -40,11 +45,13 @@ const User = () => {
   const [data, setData] = useState([]);
   // campos firebase
   const [name, setName] = useState('');
-  const [company, setCompany] = useState('');
-  const [role, setRole] = useState('');
-  const [verified, setVerified] = useState('');
+  const [grade, setGrade] = useState('');
+  const [group, setGroup] = useState('');
+  const [details, setDetails] = useState('');
+  const [phone, setPhone] = useState('');
   const [status, setStatus] = useState('');
   const [id, setId] = useState('');
+
   // abrir y cerrar botones
   const [open, setOpen] = useState(false);
   // Cambiar la pagina de la tabla.
@@ -91,19 +98,42 @@ const User = () => {
       );
     });
     return () => {
+      console.log(snap);
       snap();
     };
+
   }, []);
 
   // Boton editar
-  const editButton = (id) => {
+  const editButton = async (id) => {
+    console.log("muestrame el id", id);
     setOpen(true);
     setId(id);
+    const docRef = doc(db, "users", id);
+    try {
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+
+        const data = docSnap.data()
+        console.log("descargar datos:", data);
+        setName(data.name);
+        setGrade(data.grade);
+        setGroup(data.group);
+        setPhone(data.phone);
+        setDetails(data.details);
+        setStatus(data.status);
+
+
+      }
+      else { console.log("Document does not exist") }
+    } catch (error) { console.log(error) }
+
   };
+
   // actualizar data de firebase en los forms.del swal
   const updateData = (id) => {
     const editRef = doc(db, 'users', id);
-    updateDoc(editRef, { name, company, role, verified, status });
+    updateDoc(editRef, { name, group, grade, details, phone, status });
     setOpen(false);
     swal('Your data row file has been Updated!', {
       icon: 'success',
@@ -118,13 +148,16 @@ const User = () => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
+
+
   return (
     <>
       <UserListToolbar />
       <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+        <Table sx={{ minWidth: 350 }} aria-label="simple table">
           <TableHead>
             <TableRow>
+              <TableCell >Agregar usuario</TableCell>
               <TableCell align="center">
                 <AddUsers />
               </TableCell>
@@ -133,17 +166,18 @@ const User = () => {
               <TableCell align="center">
                 <Checkbox />
               </TableCell>
-              <TableCell align="center">Name</TableCell>
-              <TableCell align="center">Company</TableCell>
-              <TableCell align="center">Role</TableCell>
-              <TableCell align="center">Verified</TableCell>
-              <TableCell align="center">Status</TableCell>
-              <TableCell align="center">Edit</TableCell>
-              <TableCell align="center">Delete</TableCell>
+              <TableCell align="center">Nombre</TableCell>
+              <TableCell align="center">Grupo</TableCell>
+              <TableCell align="center">Details</TableCell>
+              <TableCell align="center">Phone</TableCell>
+              <TableCell align="center">Estatus</TableCell>
+              <TableCell align="center">Editar</TableCell>
+              <TableCell align="center">Borrar</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {data.map((value) => (
+
               <TableRow key={value.id} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                 <TableCell align="center">
                   <Checkbox />
@@ -151,16 +185,16 @@ const User = () => {
                 <TableCell component="th" scope="row" align="center">
                   {value.value.name}
                 </TableCell>
-                <TableCell align="center"> {value.value.company} </TableCell>
-                <TableCell align="center"> {value.value.role} </TableCell>
-                <TableCell align="center"> {value.value.verified} </TableCell>
+                <TableCell align="center"> {value.value.grade}-{value.value.group} </TableCell>
+                <TableCell align="center"> {value.value.details} </TableCell>
+                <TableCell align="center"> {value.value.phone} </TableCell>
                 <TableCell align="center">
                   <Label // Este Label sirve para poner un ghost que tenga color rojo si dice Banned y sino color verde. lo usamos como valor el label. (siguen saliendo de la base de datos los valores Banned y Active.)
                     sx={{ minWidth: 50 }}
                     variant="ghost"
-                    color={(value.value.status === 'Banned' && 'error') || 'success'}
+                    color={(value.value.status === "false" ? 'error' : 'success')}
                   >
-                    {value.value.status}
+                    {value.value.status === "true" ? 'activo' : 'desactivado'}
                   </Label>
                 </TableCell>
                 <TableCell align="center">
@@ -170,7 +204,7 @@ const User = () => {
                     }}
                     variant="contained"
                   >
-                    Edit
+                    Editar
                   </Button>
                 </TableCell>
                 <TableCell align="center">
@@ -181,7 +215,7 @@ const User = () => {
                     variant="contained"
                     color="error"
                   >
-                    Delete
+                    Borrar
                   </Button>
                 </TableCell>
               </TableRow> /* count={value.value.length} */
@@ -199,99 +233,134 @@ const User = () => {
       </TableContainer>
 
       <Modal // Modal edit mui con sweet alert
-        style={{ padding: '2.5rem' }}
+
+        style={{ padding: '1.5rem' }}
         open={open}
         onClose={close}
       >
-        <Box sx={modalSweet}>
-          <Grid
-            style={{
-              display: 'flex',
-              justifyContent: 'flex-end  ',
-            }}
-            item
-          >
-            <Button variant="contained" onClick={close}>
-              X
-            </Button>
-          </Grid>
-          <Typography style={{ textAlign: 'center', color: '#fff' }} variant="h3" component="h2">
-            Edit Users
-          </Typography>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              updateData(id);
-            }}
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              width: '100%',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <input type="text" value={id} readOnly hidden />
-            <TextField
-              style={{ width: '80%', margin: '0.9375rem', backgroundColor: '#fff' }}
-              label="Name"
-              variant="outlined"
-              required
-              onChange={(e) => setName(e.target.value)}
-            />
+        <div >
+          <Box sx={modalSweet} style={{ backgroundColor: "#fff" }}>
+            <Grid
 
-            <TextField
-              type="text"
-              style={{ width: '80%', margin: '0.9375rem', backgroundColor: '#fff' }}
-              label="Company"
-              variant="outlined"
-              required
-              onChange={(e) => setCompany(e.target.value)}
-            />
-            <TextField
-              type="text"
-              style={{ width: '80%', margin: '0.9375rem', backgroundColor: '#fff' }}
-              label="Role"
-              variant="outlined"
-              required
-              onChange={(e) => setRole(e.target.value)}
-            />
-            <TextField
-              type="text"
-              style={{ width: '80%', margin: '0.9375rem', backgroundColor: '#fff' }}
-              label="Verified"
-              variant="outlined"
-              required
-              onChange={(e) => setVerified(e.target.value)}
-            />
-            <TextField
-              type="text"
-              style={{ width: '80%', margin: '0.9375rem', backgroundColor: '#fff' }}
-              label="Status"
-              variant="outlined"
-              required
-              onChange={(e) => setStatus(e.target.value)}
-            />
-            <input
               style={{
-                margin: '0.625rem',
-                padding: '0.9375rem',
-                background: '#1976d2',
-                color: '#fff',
-                border: 'none',
-                fontWeight: 600,
-                width: '40%',
-                borderRadius: '0rem',
-                cursor: 'pointer',
+                display: 'flex',
+                justifyContent: 'flex-end  ',
+
               }}
-              type="submit"
-              value="Edit"
-            />
-          </form>
-        </Box>
+
+            >
+              <Button variant="contained" onClick={close}>
+                X
+              </Button>
+            </Grid>
+            <Typography style={{ textAlign: 'center', color: '#aac' }} variant="h3" component="h2">
+              Editar Usuarios
+            </Typography>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                updateData(id);
+              }}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                width: '100%',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: '#fff'
+              }}
+            >
+              <input type="text" value={id} readOnly hidden />
+              <TextField
+                style={{ width: '80%', margin: '0.9375rem', backgroundColor: '#fff' }}
+                label="Nombre"
+                variant="outlined"
+                required
+                value={name}
+
+                onChange={(e) => setName(e.target.value)}
+              />
+              <InputLabel id="demo-simple-select-label">Grado</InputLabel>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={grade}
+                label="Grado"
+                style={{ width: '80%', margin: '0.9375rem', backgroundColor: '#fff' }}
+                onChange={(e) => setGrade(e.target.value)}
+              >
+
+                <MenuItem value={1}>Primero</MenuItem>
+                <MenuItem value={2}>Segundo</MenuItem>
+                <MenuItem value={3}>Tercero</MenuItem>
+                <MenuItem value={4}>Cuarto</MenuItem>
+                <MenuItem value={5}>Quinto</MenuItem>
+                <MenuItem value={6}>Sexto</MenuItem>
+              </Select>
+
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={group}
+                label="Grupo"
+                style={{ width: '80%', margin: '0.9375rem', backgroundColor: '#fff' }}
+                onChange={(e) => setGroup(e.target.value)}
+              >
+                <MenuItem value={"A"}>A</MenuItem>
+                <MenuItem value={"B"}>B</MenuItem>
+                <MenuItem value={"C"}>C</MenuItem>
+              </Select>
+
+              <TextField
+                type="text"
+                style={{ width: '80%', margin: '0.9375rem', backgroundColor: '#fff' }}
+                label="Detalles"
+                variant="outlined"
+                value={details}
+                required
+                onChange={(e) => setDetails(e.target.value)}
+              />
+              <TextField
+                type="text"
+                style={{ width: '80%', margin: '0.9375rem', backgroundColor: '#fff' }}
+                label="Telefono"
+                variant="outlined"
+                value={phone}
+                required
+                onChange={(e) => setPhone(e.target.value)}
+              />
+              <RadioGroup
+                aria-labelledby="demo-radio-buttons-group-label"
+                name="radio-buttons-group"
+              >
+
+                <FormControlLabel value="true" onChange={(e) => setStatus(e.target.value)} checked={status === "true"} control={<Radio />} label="Activo" />
+
+                <FormControlLabel value="false" onChange={(e) => setStatus(e.target.value)} checked={status === "false"} control={<Radio />} label="Desactivo" />
+
+              </RadioGroup>
+              <input
+                style={{
+                  margin: '0.625rem',
+                  padding: '0.9375rem',
+                  background: '#1976d2',
+                  color: '#fff',
+                  border: 'none',
+                  fontWeight: 600,
+                  width: '40%',
+                  borderRadius: '0rem',
+                  cursor: 'pointer',
+                }}
+                type="submit"
+                value="Edit"
+              />
+            </form>
+          </Box>
+        </div>
+
       </Modal>
     </>
   );
-};
 
+};
 export default User;
