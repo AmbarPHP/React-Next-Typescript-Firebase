@@ -1,4 +1,5 @@
 ## Minimal [(Free version)](https://minimal-kit-react.vercel.app/)
+Proyecto echo a partir de un Template de mui con: carrito de compras creado con useContext y useReducer. BD firebase de los productos y usuarios . authenticacion de usuarios en fb (registro y login…
 
 ![license](https://img.shields.io/badge/license-MIT-blue.svg)
 
